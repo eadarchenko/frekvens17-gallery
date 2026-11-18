@@ -1,0 +1,26 @@
+<app-navbar></app-navbar>
+<section class="hero">
+  <div class="hero-text">
+    <p class="eyebrow">Frekvens 17 Gallery</p>
+    <h1>Ekaterina Rozenkrants</h1>
+    <p class="tagline">Energetic painting of transitions</p>
+    <a routerLink="/gallery" class="btn">Enter the gallery</a>
+  </div>
+</section>
+
+<section class="selected">
+  <div class="selected-head">
+    <p class="eyebrow">Selected works</p>
+    <h2>Colour as voice, light as breath</h2>
+  </div>
+  <div class="selected-grid">
+    <a *ngFor="let p of featured" [routerLink]="['/paiting', p.id]" [title]="p.title">
+      <div class="frame"><img [src]="p.photo" [alt]="p.title" loading="lazy"></div>
+      <span>{{ p.title }}</span>
+    </a>
+  </div>
+  <div class="selected-cta">
+    <a routerLink="/gallery" class="btn">See all works</a>
+  </div>
+</section>
+<app-footer></app-footer>

@@ -1,0 +1,23 @@
+<app-navbar></app-navbar>
+<main class="principal">
+  <header class="page-head">
+    <p class="eyebrow">Frekvens 17</p>
+    <h1>The Gallery</h1>
+    <p class="lead">Eight oil paintings from 2024. Originals and signed, numbered limited prints are available upon request.</p>
+  </header>
+
+  <ul class="works">
+    <li *ngFor="let paiting of paitings">
+      <a [title]="paiting.title + ' details'" [routerLink]="['/paiting', paiting.id]">
+        <div class="frame">
+          <img [src]="paiting.photo" [alt]="paiting.title" loading="lazy">
+        </div>
+        <div class="caption">
+          <strong>{{ paiting.title }}</strong>
+          <span>{{ paiting.size }}</span>
+        </div>
+      </a>
+    </li>
+  </ul>
+</main>
+<app-footer></app-footer>

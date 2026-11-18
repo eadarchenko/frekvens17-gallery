@@ -1,0 +1,74 @@
+const {chromium}=require('@playwright/test');
+const fs=require('fs');
+let currentPage,browserRef;
+(async()=>{
+ const base=process.env.E2E_BASE_URL||'http://127.0.0.1:8765'; const out=process.env.E2E_OUTPUT||'test-results'; fs.mkdirSync(out,{recursive:true});
+ const browser=await chromium.launch({...(process.env.CHROME_BIN?{executablePath:process.env.CHROME_BIN}:{}),headless:true,args:['--no-sandbox']});
+ browserRef=browser;
+ const context=await browser.newContext({viewport:{width:1440,height:1050}});const page=await context.newPage();
+ currentPage=page;page.on('response',async r=>{if(r.status()>=400)console.log('HTTP',r.status(),r.url(),(await r.text()).slice(0,500));});
+ const mailLog=require('node:path').resolve(__dirname,'../../backend/storage/logs/laravel.log');const readMail=()=>fs.existsSync(mailLog)?fs.readFileSync(mailLog,'utf8'):'';const mailCountBefore=(readMail().match(/Subject: LOCAL TEST order recorded/g)||[]).length;
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+ const snap=async(name)=>{await page.screenshot({path:out+'/'+name+'.png',fullPage:true});};
+ await page.goto(base+'');await page.getByRole('link',{name:'Gallery',exact:true}).first().waitFor();
+ await page.goto(base+'/paiting/1');
+ await page.locator('.images-column img').first().waitFor();
+ await page.waitForFunction(()=>Array.from(document.querySelectorAll('.images-column img')).every(i=>i.complete&&i.naturalWidth>0));
+ const imgSizes=await page.locator('.images-column img').evaluateAll(imgs=>imgs.map(i=>({src:i.currentSrc,w:i.naturalWidth,h:i.naturalHeight})));
+ if(imgSizes.some(i=>Math.max(i.w,i.h)>960||!i.src.includes('.webp')))throw new Error('Original image exposure in painting view');
+ await snap('shop-11-protected-artwork');
+ for(const url of ['/assets/point%20of%20transition.png','/storage/products/anything.png']){const response=await page.request.get(base+url);if(response.status()!==404)throw new Error('Legacy route still available: '+url);}
+ await page.setViewportSize({width:390,height:844});await snap('shop-12-protected-mobile');await page.setViewportSize({width:1440,height:1050});
+ await page.goto(base+'/paiting/9');await page.getByRole('button',{name:'Add to basket'}).click();await page.getByRole('link',{name:'View basket'}).click();
+ await page.getByLabel('Full name',{exact:true}).fill('Test Guest');await page.getByLabel('Email',{exact:true}).fill('guest@example.test');await page.getByLabel('Address',{exact:true}).fill('Test street 1');await page.getByLabel('City',{exact:true}).fill('Test City');await page.getByLabel('Postal code',{exact:true}).fill('00000');await page.getByLabel('Country code',{exact:false}).fill('ES');await page.getByRole('checkbox').check();
+ await snap('shop-01-basket-desktop');
+ await page.getByRole('button',{name:'Record test order'}).click();await page.getByRole('heading',{name:'Test order recorded'}).waitFor();await snap('shop-02-guest-receipt');
+ await page.goto(base+'/account');await page.getByRole('button',{name:'Create account',exact:true}).first().click();
+ await page.getByLabel('Full name',{exact:true}).fill('Test Collector');await page.getByLabel('Email',{exact:true}).fill('collector@example.test');await page.getByLabel('Password',{exact:true}).fill('Local-test-only123');await page.getByLabel('Confirm password').fill('Local-test-only123');await page.getByRole('button',{name:'Create account',exact:true}).last().click();await page.getByRole('heading',{name:'Test Collector',exact:true}).waitFor();
+ await page.getByRole('heading',{name:'Verify your email',exact:true}).waitFor();
+ await snap('shop-09-email-verification');
+ const readFile=require('node:fs').readFileSync;const logPath=require('node:path').resolve(__dirname,'../../backend/storage/logs/laravel.log');
+ const verificationLinks=readFile(logPath,'utf8').match(/https?:[^\s<>"]+\/verify-email[^\s<>"]+/g)||[];
+ const verification=verificationLinks.at(-1)?.replaceAll('&amp;','&');if(!verification)throw new Error('Verification link missing from local log');
+ await page.goto(verification);await page.getByText('Email verified.',{exact:true}).waitFor();
+ await page.goto(base+'/paiting/9');await page.getByRole('button',{name:'Add to basket'}).click();await page.getByRole('link',{name:'View basket'}).click();
+ await page.getByLabel('Address',{exact:true}).fill('Test street 2');await page.getByLabel('City',{exact:true}).fill('Test City');await page.getByLabel('Postal code',{exact:true}).fill('00000');await page.getByLabel('Country code',{exact:false}).fill('ES');await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Record test order'}).click();await page.getByRole('heading',{name:'Test order recorded'}).waitFor();
+ await page.goto(base+'/account');await page.getByText('Test format',{exact:false}).first().waitFor();await snap('shop-03-customer-history');
+ await page.getByRole('button',{name:'Sign out'}).click();await page.getByRole('heading',{name:'Welcome back'}).waitFor();
+ await page.getByLabel('Email',{exact:true}).fill('collector@example.test');await page.getByRole('button',{name:/Forgot password/}).click();
+ await page.getByText(/If this account exists/).waitFor();
+ const resetLinks=readFile(logPath,'utf8').match(/https?:[^\s<>"]+\/reset-password[^\s<>"]+/g)||[];
+ const resetLink=resetLinks.at(-1)?.replaceAll('&amp;','&');if(!resetLink)throw new Error('Recovery link missing from local log');
+ await page.goto(resetLink);await page.getByLabel('New password',{exact:true}).fill('Updated-local-test123');await page.getByLabel('Confirm new password',{exact:true}).fill('Updated-local-test123');await snap('shop-10-password-recovery');await page.getByRole('button',{name:'Reset password',exact:true}).click();await page.getByText('Password changed. Sign in with your new password.',{exact:true}).waitFor();
+ await page.goto(base+'/account');await page.getByLabel('Email',{exact:true}).fill('collector@example.test');await page.getByLabel('Password',{exact:true}).fill('Updated-local-test123');await page.getByRole('button',{name:'Sign in',exact:true}).last().click();await page.getByRole('heading',{name:'Test Collector',exact:true}).waitFor();
+ // Customer must be denied even when opening admin directly.
+ await page.goto(base+'/admin');await page.getByRole('heading',{name:'Artist access required'}).waitFor();
+ await page.goto(base+'/account');await page.getByRole('button',{name:'Sign out'}).click();await page.getByRole('heading',{name:'Welcome back'}).waitFor();
+ await page.getByLabel('Email',{exact:true}).fill('artist@example.test');await page.getByLabel('Password',{exact:true}).fill('Local-test-only123');await page.getByRole('button',{name:'Sign in',exact:true}).last().click();await page.getByRole('link',{name:'Open artist studio'}).click();await page.getByRole('button',{name:'Edit',exact:true}).first().waitFor();
+ await page.getByRole('button',{name:'Edit',exact:true}).first().click();await page.getByLabel('Gallery introduction').fill('Test edit persisted in the local database.');await page.getByRole('button',{name:'Save work',exact:true}).click();await page.getByText('Work and formats saved.',{exact:true}).waitFor();await snap('shop-04-artist-editor');
+ // Real image upload, create, reload, and soft-delete through the UI.
+ await page.getByRole('button',{name:'Add work',exact:true}).click();await page.getByRole('heading',{name:'New work',exact:true}).waitFor();await page.getByLabel('Title',{exact:true}).fill('Temporary browser test work');await page.getByLabel('Size / technique / year',{exact:true}).fill('Test dimensions');
+ await page.getByLabel('Upload main image',{exact:true}).setInputFiles(require('node:path').join(__dirname,'../src/assets/point of transition.webp'));
+ await page.getByText('Image uploaded. Save the work to apply it.',{exact:true}).waitFor();
+ const imagePath=await page.getByLabel('Main image path',{exact:true}).inputValue();const imageResponse=await page.request.get(base+imagePath);if(imageResponse.status()!==200)throw new Error('Uploaded image is not served');
+ await page.getByRole('button',{name:'Save work',exact:true}).click();await page.getByText('Work and formats saved.',{exact:true}).waitFor();
+ await page.reload();const tempRow=page.locator('article.admin-work').filter({hasText:'Temporary browser test work'});await tempRow.waitFor();
+ page.once('dialog',d=>d.accept());await tempRow.getByRole('button',{name:'Delete',exact:true}).click();await page.getByText('Work removed. Existing orders kept.',{exact:true}).waitFor();
+ const csrf=await page.request.post(base+'/api/checkout',{data:{}});if(csrf.status()!==419)throw new Error('Missing CSRF token was not rejected');
+ await page.getByRole('button',{name:/Test orders/}).click();await page.getByRole('heading',{name:'Test Collector',exact:true}).waitFor();await snap('shop-05-artist-orders');
+ await page.getByLabel('Test fulfilment status').first().selectOption('cancelled');await page.getByText('Test order updated.',{exact:true}).waitFor();
+ await page.setViewportSize({width:390,height:844});await page.goto(base+'/admin');await page.getByRole('button',{name:'Edit',exact:true}).first().click();await snap('shop-06-mobile-admin');
+ let overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);if(overflow)throw new Error('Mobile admin overflows horizontally');
+ await page.goto(base+'/paiting/9');await page.getByRole('button',{name:'Add to basket'}).click();await page.getByRole('link',{name:'View basket'}).click();await snap('shop-07-mobile-basket');
+ overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);if(overflow)throw new Error('Mobile basket overflows horizontally');
+ await page.setViewportSize({width:320,height:780});
+ for(const route of ['/account','/basket','/admin','/gallery','/paiting/9','/contact']){
+  await page.goto(base+route);await page.locator('app-navbar').waitFor();
+  const bad=await page.evaluate(()=>Array.from(document.querySelectorAll('input,select,textarea,button,h1,h2')).filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&(r.right>innerWidth+1||r.left< -1)}).map(e=>e.tagName+':'+e.textContent?.slice(0,50)));
+  if(bad.length)throw new Error('320px overflow '+route+' '+bad.join(', '));
+ }
+ await page.screenshot({path:out+'/shop-08-mobile320-detail.png',fullPage:true});
+ const mailCountAfter=(readMail().match(/Subject: LOCAL TEST order recorded/g)||[]).length;if(mailCountAfter-mailCountBefore!==2)throw new Error('Expected two local order confirmations, got '+(mailCountAfter-mailCountBefore));
+ if(errors.length)throw new Error('Browser console errors: '+errors.join('; '));
+ fs.writeFileSync(out+'/shop-browser-results.json',JSON.stringify({success:true,errors},null,2));await browser.close();console.log('Browser journeys complete',JSON.stringify(errors));
+})().catch(async e=>{console.error(e);if(currentPage)await currentPage.screenshot({path:(process.env.E2E_OUTPUT||'test-results')+'/failure.png',fullPage:true});if(browserRef)await browserRef.close();process.exitCode=1;});

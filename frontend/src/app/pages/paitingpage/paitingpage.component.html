@@ -1,0 +1,45 @@
+<app-navbar></app-navbar>
+<main class="container-detail" *ngIf="painting; else notFound">
+  <a class="back-link" routerLink="/gallery"><span class="arrow">←</span> Return to gallery</a>
+
+  <div class="content-layout">
+    <div class="images-column">
+      <img [src]="painting.photo" [alt]="painting.title" class="main-img">
+      <img *ngIf="painting.photo2 && painting.photo2 !== painting.photo" [src]="painting.photo2" [alt]="painting.title + ' detail'" class="detail-img" loading="lazy">
+    </div>
+
+    <div class="info-column">
+      <p class="eyebrow">Ekaterina Rozenkrants</p>
+      <h1 class="title">{{ painting.title }}</h1>
+      <p class="size">{{ painting.size }}</p>
+
+      <div class="divider"></div>
+
+      <p class="description">{{ painting.description }}</p>
+
+      <app-buy [id]="painting.id"></app-buy>
+      <h3 class="section-title">About the formats</h3>
+      <ul class="formats">
+        <li *ngFor="let f of formats">
+          <strong>{{ f.name }}</strong>
+          <span>{{ f.detail }}</span>
+        </li>
+      </ul>
+      <p class="note">{{ formatsNote }}</p>
+
+      <a class="btn inquiry-button" [href]="inquiryHref">Enquire about this work</a>
+    </div>
+  </div>
+
+  <nav class="pager" aria-label="More works">
+    <a *ngIf="prev" [routerLink]="['/paiting', prev.id]">← {{ prev.title }}</a>
+    <a *ngIf="next" [routerLink]="['/paiting', next.id]">{{ next.title }} →</a>
+  </nav>
+</main>
+<ng-template #notFound>
+  <main class="container-detail">
+    <a class="back-link" routerLink="/gallery"><span class="arrow">←</span> Return to gallery</a>
+    <h1 class="title">Work not found</h1>
+  </main>
+</ng-template>
+<app-footer></app-footer>

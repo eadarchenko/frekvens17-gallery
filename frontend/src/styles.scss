@@ -1,0 +1,116 @@
+@use './shop.scss';
+// Frekvens 17 Gallery - global theme
+// Palette: deep navy, never black. The paintings carry the colour.
+:root {
+  --navy-950: #091530;   // deepest tone, still clearly blue
+  --navy-900: #0c1a3a;   // page background
+  --navy-800: #112347;   // raised surfaces
+  --navy-700: #182f5c;   // cards, hover surfaces
+  --line: rgba(166, 192, 240, 0.16);
+  --text: #eef2fb;
+  --text-muted: #aebad4;
+  --accent: #8eb5f3;     // brand light blue
+  --gold: #d9b86c;       // echoes the light in the paintings
+  --font-serif: 'Cormorant Garamond', 'Times New Roman', serif;
+  --font-ui: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  --page-pad: clamp(1.25rem, 5vw, 4.5rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--navy-900);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-weight: 300;
+  line-height: 1.7;
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .mat-typography h1, .mat-typography h2, .mat-typography h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.15;
+  margin: 0 0 1rem;
+}
+
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+::selection { background: rgba(142, 181, 243, 0.35); }
+
+/* Shared building blocks */
+.eyebrow {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.95rem 2.4rem;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+
+  &:hover { background: var(--gold); color: var(--navy-900); }
+}
+
+app-root, app-navbar, app-footer, app-about, app-paiting-detail {
+  display: block;
+  width: 100%;
+}
+
+/* Angular Material FAQ panels: use the site font instead of Roboto */
+.mat-expansion-panel, .mat-expansion-panel-header, .mat-expansion-panel-body, .mat-expansion-panel-header-title {
+  font-family: var(--font-ui);
+}
+
+
+
+/* Material 22 uses header-title rather than the old mat-panel-title hook. */
+.custom-accordion {
+ --mat-expansion-header-text-color: var(--text);
+ --mat-expansion-container-text-color: var(--text-muted);
+ --mat-expansion-header-indicator-color: var(--accent);
+ .mat-expansion-panel-header-title, .mat-expansion-panel-header-description { color: var(--text) !important; }
+ .mat-expansion-panel-body { color: var(--text-muted); }
+ .mat-expansion-indicator svg { fill: var(--accent); }
+}
+
+// Mobile controls: comfortable touch areas, visible focus, no iOS input zoom.
+a:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+@media (max-width: 850px) {
+  button, a.btn, .text-button, .inline-link { min-height: 44px; min-width: 44px; touch-action: manipulation; }
+  .btn, .text-button { display: inline-flex; align-items: center; justify-content: center; }
+  .btn { max-width: 100%; white-space: normal; }
+  .store-shell input:not([type=checkbox]), .store-shell select, .store-shell textarea { font-size: 16px; min-height: 44px; }
+  .store-tabs { gap: .5rem 1rem; }
+  .store-tabs button { padding: .65rem .4rem; }
+  .checkbox { min-height: 44px; align-items: center; }
+  .purchase-panel .format-option .btn { min-height: 44px; }
+  .footer .links ul li { margin-bottom: .25rem; }
+  .footer .links a, .footer .email-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; }
+  .footer .social .social-icons { gap: .75rem; }
+  .footer .social .social-icons a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+}
+@media (max-width: 850px) {
+  .back-link, .pager a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+}

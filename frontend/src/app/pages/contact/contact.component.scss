@@ -1,0 +1,195 @@
+
+.page-wrapper {
+  background-color: var(--navy-900);
+  min-height: 100vh;
+  padding: 0 5%; // Añade un 5% de margen a izquierda y derecha
+}
+/* Aplicamos la fuente a todo el contenedor */
+.contact, .info {
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--navy-900); // Fondo oscuro igual que la galería
+}
+
+/* --- SECCIÓN CONTACTO --- */
+.contact {
+  padding: 4rem 2rem;
+  h2, h3 { font-family: var(--font-serif); font-weight: 500; }
+  background: linear-gradient(180deg, #0b1d3a 0%, #162a4d 100%);
+  color: #ffffff;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  h2 {
+    font-size: 2.8rem;
+    letter-spacing: 0.04em;
+    margin-bottom: 1rem;
+    color: #ffffff;
+  }
+
+  p {
+    max-width: 600px;
+    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    li { 
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.9);
+      
+      strong { color: #8eb5f3; margin-right: 0.5em; } // Resaltamos en azul claro
+    }
+
+    a {
+      color: #ffffff;
+      font-weight: 500;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(142, 181, 243, 0.3);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        color: #8eb5f3;
+        border-bottom-color: #8eb5f3;
+      }
+    }
+  }
+}
+
+/* --- SECCIÓN INFO PRÁCTICA --- */
+.info {
+  max-width: 100%; // Ocupa todo el ancho el fondo
+  padding: 4rem 0;
+  color: #ffffff;
+
+  // Contenedor interno para centrar el texto
+  .info-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  h2 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 2.4rem;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    margin-bottom: 3rem;
+    text-align: center;
+    color: #ffffff;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 3rem 0 1.2rem 0;
+    border-left: 3px solid #8eb5f3; 
+    padding-left: 15px;
+    color: #8eb5f3;
+  }
+
+  p {
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1.5rem;
+  }
+
+  ul li {
+    color: rgba(255, 255, 255, 0.7);
+    strong { color: #ffffff; }
+  }
+}
+
+/* --- MAT-EXPANSION (FAQ) REESTILIZADO --- */
+.faq-container {
+  margin-top: 5rem;
+  
+  h3 {
+    border-left: none;
+    padding-left: 0;
+    border-bottom: 2px solid #8eb5f3; // Línea azul marca
+    display: inline-block;
+    padding-bottom: 8px;
+    margin-bottom: 2rem;
+    color: #ffffff;
+    font-family: var(--font-ui);
+    letter-spacing: 2px;
+  }
+}
+
+.custom-accordion.mat-accordion {
+  background: transparent;
+
+  .mat-expansion-panel {
+    background: rgba(255, 255, 255, 0.03) !important; // Fondo muy sutil
+    box-shadow: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; // Línea divisoria fina
+    border-radius: 0 !important;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+
+    &:last-child {
+      border-bottom: none !important;
+    }
+
+    // Color cuando el panel está abierto
+    &.mat-expanded {
+      background-color: rgba(142, 181, 243, 0.05) !important; 
+    }
+  }
+
+  .mat-expansion-panel-header {
+    padding: 30px 0 !important;
+    background: transparent !important;
+    
+    // El efecto Hover para la pregunta
+    &:hover {
+      .mat-panel-title {
+        color: #8eb5f3 !important; // Cambia a azul claro al pasar el ratón
+        transform: translateX(8px);
+      }
+    }
+  }
+
+  .mat-panel-title {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    color: #ffffff !important; // Pregunta en blanco puro
+    transition: all 0.3s ease-in-out; 
+  }
+
+  /* Color del texto de la RESPUESTA */
+  .mat-expansion-panel-body {
+    padding: 0 0 30px 20px !important; // Un poco de margen a la izquierda
+    
+    p {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.7) !important; // Blanco suave/grisáceo para la respuesta
+    }
+  }
+
+  /* Color del icono (la flecha) */
+  ::ng-deep .mat-expansion-indicator::after {
+    color: #8eb5f3 !important; // Flecha en azul marca
+    border-width: 0 2px 2px 0 !important;
+    vertical-align: middle;
+  }
+}
+
+/* Reset para evitar márgenes raros de Material */
+::ng-deep .mat-expansion-panel-spacing {
+  margin: 0 !important;
+}

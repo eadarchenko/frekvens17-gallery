@@ -1,0 +1,87 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem var(--page-pad);
+  background: rgba(12, 26, 58, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+
+  .logo {
+    font-family: var(--font-serif);
+    font-size: 1.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    transition: color 0.3s;
+
+    span { color: var(--gold); }
+    &:hover { color: var(--accent); }
+  }
+
+  ul {
+    list-style: none;
+    display: flex;
+    gap: clamp(1.2rem, 3.5vw, 3rem);
+    margin: 0;
+    padding: 0;
+
+    a {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding-bottom: 6px;
+      border-bottom: 1px solid transparent;
+      transition: color 0.3s, border-color 0.3s;
+
+      &:hover { color: var(--text); }
+      &.active { color: var(--text); border-bottom-color: var(--gold); }
+    }
+  }
+}
+
+@media (max-width: 560px) {
+  .navbar {
+    .logo { font-size: 1.15rem; letter-spacing: 0.08em; white-space: nowrap; }
+    ul { gap: 0.8rem; a { font-size: 0.6rem; letter-spacing: 0.14em; } }
+  }
+}
+
+@media(max-width:800px){.navbar{flex-wrap:wrap;gap:0.6rem;.logo{font-size:1.3rem;}ul{width:100%;justify-content:space-between;gap:.5rem;a{font-size:.6rem;letter-spacing:.07em;}}}}
+.server-error{padding:1rem;background:#622a32;margin:0;}
+@media(max-width:800px){.navbar ul a{white-space:nowrap}}
+@media(max-width:360px){.navbar ul{gap:.3rem;a{font-size:.55rem;letter-spacing:.03em}}}
+
+// Keep every destination visible, but give it a full touch target on small screens.
+@media (max-width: 800px) {
+  .navbar {
+    gap: .4rem;
+    padding-top: .6rem;
+    padding-bottom: .6rem;
+    .logo { display: inline-flex; align-items: center; min-height: 44px; gap: .35em; }
+    ul {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: .25rem .5rem;
+      li { grid-column: span 2; min-width: 0; }
+      li:nth-last-child(-n+2) { grid-column: span 3; }
+      a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        width: 100%;
+        padding: .5rem .2rem;
+        font-size: .75rem;
+        letter-spacing: .07em;
+      }
+    }
+  }
+}

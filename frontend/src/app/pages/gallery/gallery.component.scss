@@ -1,0 +1,63 @@
+.principal {
+  background: linear-gradient(180deg, var(--navy-900) 0%, var(--navy-800) 100%);
+  min-height: 100vh;
+  padding: 5rem var(--page-pad) 6rem;
+}
+
+.page-head {
+  text-align: center;
+  max-width: 40rem;
+  margin: 0 auto 4rem;
+
+  h1 { font-size: clamp(2.4rem, 5vw, 3.6rem); margin: 0.8rem 0 1rem; }
+  .lead { color: var(--text-muted); margin: 0; }
+}
+
+// Even grid: every painting is shown whole (never cropped) on a navy mat.
+.works {
+  list-style: none;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem 2.4rem;
+
+  a { display: block; }
+
+  .frame {
+    overflow: hidden;
+    aspect-ratio: 2 / 3;
+    background: var(--navy-800);
+    border: 1px solid var(--line);
+    box-shadow: 0 16px 38px rgba(5, 12, 30, 0.45);
+    transition: box-shadow 0.5s ease, transform 0.5s ease;
+
+    img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.8s ease; }
+  }
+
+  .caption {
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+
+    strong {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: color 0.3s;
+    }
+    span { font-size: 0.78rem; letter-spacing: 0.05em; color: var(--text-muted); }
+  }
+
+  a:hover {
+    .frame { transform: translateY(-6px); box-shadow: 0 24px 46px rgba(5, 12, 30, 0.6); }
+    .frame img { transform: scale(1.03); }
+    .caption strong { color: var(--accent); }
+  }
+}
+
+@media (max-width: 960px) { .works { grid-template-columns: repeat(2, 1fr); gap: 2.4rem 1.6rem; } }
+@media (max-width: 560px) { .works { grid-template-columns: 1fr; } }

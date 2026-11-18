@@ -1,0 +1,136 @@
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 100px 5%; // Mantenemos ese margen lateral del 5% que pediste
+  min-height: 100vh;
+  background-color: var(--navy-900); // Fondo oscuro coherente
+}
+
+.about-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 80px;
+  align-items: center;
+}
+
+/* Estilo de la Foto con toque premium */
+.artist-image-wrapper {
+  position: relative;
+  
+  // The source photo has a 200px black bar at top and bottom (24.15% of its width): crop it out here, file untouched.
+  .photo-crop { position: relative; z-index: 2; overflow: hidden; aspect-ratio: 828 / 1392; }
+
+  .artist-photo {
+    margin-top: -24.15%;
+    width: 100%;
+    height: auto;
+    display: block;
+    z-index: 2;
+    position: relative;
+    border-radius: 2px;
+    filter: brightness(0.9) contrast(1.1); // Mejora la foto para fondos oscuros
+    transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+
+    &:hover {
+      filter: brightness(1);
+      transform: scale(1.02);
+    }
+  }
+
+  // Cuadro decorativo (ahora en azul claro sobre el fondo oscuro)
+  .image-border {
+    position: absolute;
+    top: 25px;
+    left: -25px;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(142, 181, 243, 0.4); // Azul marca con transparencia
+    z-index: 1;
+  }
+}
+
+/* Estilo del Contenido */
+.artist-content {
+  .title {
+    font-family: var(--font-ui);
+    font-family: var(--font-serif);
+    font-size: 3.4rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    margin-bottom: 40px;
+    color: #ffffff; // Blanco puro para el nombre
+    text-shadow: 0 0 20px rgba(142, 181, 243, 0.2); // Sutil resplandor
+  }
+
+  .bio-text {
+    p {
+      font-size: 1.05rem;
+      line-height: 1.9;
+      color: rgba(255, 255, 255, 0.75); // Blanco suave para lectura larga
+      margin-bottom: 25px;
+      text-align: left; // Justificado a veces deja huecos feos, mejor izquierda
+    }
+
+    .highlight {
+      font-size: 1.25rem;
+      color: var(--accent); // Resaltamos la frase principal con tu azul
+      line-height: 1.5;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 25px;
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+
+    .closing {
+      font-style: italic;
+      color: rgba(142, 181, 243, 0.8); // Azul marca suave
+      margin-top: 40px;
+      font-size: 1.1rem;
+    }
+  }
+
+  .signature {
+    margin-top: 60px;
+    font-family: var(--font-ui);
+    letter-spacing: 4px;
+    font-size: 0.85rem;
+    color: #ffffff;
+    opacity: 0.6;
+    
+    &::before {
+      content: "";
+      display: block;
+      width: 40px;
+      height: 1px;
+      background: #8eb5f3;
+      margin-bottom: 15px;
+    }
+  }
+}
+
+/* Responsivo para móviles */
+@media (max-width: 900px) {
+  .about-container {
+    padding: 60px 20px;
+  }
+
+  .about-layout {
+    grid-template-columns: 1fr;
+    gap: 60px;
+  }
+
+  .artist-image-wrapper {
+    max-width: 450px;
+    margin: 0 auto;
+    
+    .image-border {
+      top: 15px;
+      left: 15px; // Cambiamos de lado para equilibrar en móvil
+    }
+  }
+
+  .artist-content .title {
+    text-align: center;
+    font-size: 2rem;
+  }
+}

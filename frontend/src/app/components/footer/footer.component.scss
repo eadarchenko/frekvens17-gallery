@@ -1,0 +1,106 @@
+.footer {
+  background: var(--navy-950);
+  color: #ffffff;
+  padding: 4rem 2rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-family: var(--font-ui);
+
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    // Creamos 4 columnas que se adaptan
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 3rem;
+  }
+
+  .footer-section {
+    h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+      color: #8eb5f3; // Tu azul claro para acentos
+    }
+
+    p {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .brand {
+    .footer-logo {
+      font-family: var(--font-serif);
+      font-size: 1.7rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      margin-bottom: 1rem;
+    }
+    .location { font-size: 0.75rem; }
+  }
+
+  .links ul {
+    list-style: none;
+    padding: 0;
+    li {
+      margin-bottom: 0.8rem;
+      a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: color 0.3s;
+        &:hover { color: #ffffff; }
+      }
+    }
+  }
+
+  .contact-info {
+    .email-link {
+      display: inline-block;
+      margin-top: 5px;
+      color: #ffffff;
+      text-decoration: none;
+      border-bottom: 1px solid #8eb5f3;
+      padding-bottom: 2px;
+      transition: opacity 0.3s;
+      &:hover { opacity: 0.7; }
+    }
+    .response-time {
+      margin-top: 1rem;
+      font-size: 0.7rem;
+      font-style: italic;
+    }
+  }
+
+  .social {
+    .social-icons {
+      display: flex;
+      gap: 1.5rem;
+      a {
+        color: #ffffff;
+        font-size: 1.2rem;
+        transition: transform 0.3s, color 0.3s;
+        &:hover {
+          color: #8eb5f3;
+          transform: translateY(-3px);
+        }
+      }
+    }
+  }
+}
+
+// Responsivo para móviles
+@media (max-width: 768px) {
+  .footer {
+    padding: 3rem 1.5rem;
+    .footer-container {
+      grid-template-columns: 1fr; // Una sola columna en móvil
+      text-align: center;
+      gap: 2.5rem;
+    }
+    .social-icons { justify-content: center; }
+  }
+}

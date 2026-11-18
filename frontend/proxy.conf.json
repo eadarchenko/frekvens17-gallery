@@ -1,0 +1,22 @@
+{
+  "/api": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/storage": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/media": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/verify-email": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": false
+  }
+}

@@ -1,0 +1,12 @@
+<nav class="navbar">
+  <a class="logo" routerLink="/" aria-label="Frekvens 17 Gallery, home">Frekvens <span>17</span></a>
+  <ul>
+    <li><a routerLink="/gallery" routerLinkActive="active">Gallery</a></li>
+    <li><a routerLink="/about" routerLinkActive="active">About</a></li>
+    <li><a routerLink="/contact" routerLinkActive="active">Contact</a></li>
+    <li><a routerLink="/account" routerLinkActive="active">Account</a></li>
+    <li><a routerLink="/basket" routerLinkActive="active">Basket ({{shop.count}})</a></li>
+  </ul>
+</nav>
+
+<p class="server-error" role="alert" *ngIf="shop.unavailable">{{shop.unavailable}}</p>

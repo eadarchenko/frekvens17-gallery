@@ -1,0 +1,112 @@
+<app-navbar></app-navbar>
+<main class="store-shell">
+ <p class="eyebrow">Frekvens 17 · {{mode==='admin'?'Artist studio':'Collector services'}}</p>
+ <h1>{{mode==='basket'?'Your basket':mode==='account'?'Your account':mode==='reset'?'Reset your password':'Artist studio'}}</h1>
+ <p class="store-warning" role="note">Local development version. Online payments are not connected. No real purchases can be made.</p>
+ <p class="store-warning" *ngIf="shop.config.demo">DEMO: fictional prices from EUR 300 and fictional stock. Completed fulfilment is simulated. No payment or delivery occurred.</p>
+ <p class="error" role="alert" *ngIf="error">{{error}}</p><p class="success" role="status" *ngIf="notice">{{notice}}</p>
+ <p class="error" *ngIf="shop.unavailable">{{shop.unavailable}}</p>
+ <ng-container *ngIf="mode==='basket'">
+  <section *ngIf="submitted" class="store-card receipt" aria-live="polite">
+   <h2>Test order recorded</h2><p>No payment was collected. This is not a purchase confirmation.</p>
+   <p class="reference">Reference: {{submitted.reference}}</p>
+   <p>{{shop.money(submitted.total_cents,submitted.currency)}} · {{submitted.status}} · Payment: {{submitted.payment_status}}</p>
+   <p *ngIf="!shop.user">Guest details are stored with this test order. Guest orders do not appear in a later account automatically.</p>
+   <a class="btn" routerLink="/gallery">Return to gallery</a>
+  </section>
+  <ng-container *ngIf="!submitted">
+   <section class="store-card" *ngIf="!shop.basket.length"><h2>Your basket is empty</h2><p>Explore the gallery and choose an available format.</p><a class="btn" routerLink="/gallery">Explore works</a></section>
+   <div class="checkout-grid" *ngIf="shop.basket.length">
+    <section>
+     <button class="text-button" type="button" (click)="refreshBasket()" [disabled]="busy">Refresh availability</button>
+     <article class="basket-line" *ngFor="let l of shop.lines; trackBy: trackLine">
+      <img *ngIf="l.entry" [src]="l.entry.product.photo" [alt]="l.entry.product.title">
+      <div><h2>{{l.entry?.product?.title || 'Work unavailable'}}</h2><p>{{l.entry?.variant?.name}}</p>
+       <p>{{l.entry?.variant?.price_cents!==null && l.entry ? shop.money(l.entry.variant.price_cents!) : 'Unavailable'}}</p>
+       <label>Quantity <input class="quantity" type="number" min="1" max="25" [ngModel]="l.quantity" (ngModelChange)="shop.quantity(l.variant_id,$event)"></label>
+       <button class="text-button" type="button" (click)="shop.remove(l.variant_id)">Remove</button>
+       <p class="error" *ngIf="!l.entry || l.quantity>(l.entry.variant.stock||0)">Unavailable quantity. Please update or remove this item.</p>
+      </div>
+     </article>
+     <div class="store-card totals"><p><span>Works</span><strong>{{shop.money(shop.subtotal)}}</strong></p><p><span>Test shipping</span>{{shop.money(shop.config.shipping_cents)}}</p><p><span>Test tax</span>{{shop.money(shop.tax)}}</p><p class="grand-total"><span>Test total</span><strong>{{shop.money(shop.total)}}</strong></p><small>These are test calculations, not commercial shipping or tax terms.</small></div>
+    </section>
+    <section class="store-card">
+     <h2>{{shop.user?'Checkout':'Guest checkout'}}</h2><p *ngIf="!shop.user">No account needed. Or <a class="inline-link" routerLink="/account">sign in / create an account</a> for your order history.</p>
+     <p class="store-warning" *ngIf="shop.config.mode!=='test'">Checkout is disabled until the artist confirms prices, currency, shipping, taxes and a payment provider.</p>
+     <p class="store-warning" *ngIf="shop.user && !shop.user.email_verified_at">Verify your email in <a routerLink="/account" class="inline-link">your account</a> before recording a signed-in test order.</p>
+     <form #checkoutForm="ngForm" (ngSubmit)="checkout()">
+      <label>Full name<input name="name" [(ngModel)]="customer.name" required maxlength="120" autocomplete="name"></label>
+      <label>Email<input [readonly]="!!shop.user" type="email" name="email" [(ngModel)]="customer.email" required email maxlength="254" autocomplete="email"></label>
+      <label>Address<input name="line1" [(ngModel)]="customer.address.line1" required maxlength="180" autocomplete="address-line1"></label>
+      <label>Apartment / address line 2 (optional)<input name="line2" [(ngModel)]="customer.address.line2" maxlength="180" autocomplete="address-line2"></label>
+      <div class="field-row"><label>City<input name="city" [(ngModel)]="customer.address.city" required maxlength="120" autocomplete="address-level2"></label><label>Postal code<input name="postcode" [(ngModel)]="customer.address.postcode" required maxlength="30" autocomplete="postal-code"></label></div>
+      <label>Country code (2 letters, e.g. ES)<input name="country" [(ngModel)]="customer.address.country" required pattern="[A-Za-z]{2}" maxlength="2" autocomplete="country"></label>
+      <label class="checkbox"><input type="checkbox" name="test" [(ngModel)]="customer.test_acknowledged" required> I understand this records a test order only. No payment or real fulfilment.</label>
+      <button class="btn" [disabled]="busy || checkoutForm.invalid || !shop.valid || shop.config.mode!=='test' || !shop.config.currency || (shop.user && !shop.user.email_verified_at)">{{busy?'Recording…':'Record test order'}}</button>
+     </form>
+    </section>
+   </div>
+  </ng-container>
+ </ng-container>
+ <section class="store-card auth-card" *ngIf="mode==='reset'">
+  <h2>Choose a new password</h2><p class="muted">Recovery links expire after 60 minutes and work once.</p>
+  <form #resetForm="ngForm" (ngSubmit)="reset()"><label>Email<input name="resetEmail" type="email" [(ngModel)]="recovery.email" required email></label><label>New password<input name="resetPassword" type="password" [(ngModel)]="recovery.password" required minlength="12" autocomplete="new-password"></label><label>Confirm new password<input name="resetConfirm" type="password" [(ngModel)]="recovery.password_confirmation" required autocomplete="new-password"></label><small>At least 12 characters, including a letter and a number.</small><button class="btn" [disabled]="busy || resetForm.invalid || !recovery.token">Reset password</button></form><a class="inline-link" routerLink="/account">Back to sign in</a>
+ </section>
+ <ng-container *ngIf="mode==='account'">
+  <section class="store-card auth-card" *ngIf="!shop.user">
+   <div class="store-tabs"><button [class.selected]="authMode==='login'" (click)="authMode='login';error=''">Sign in</button><button [class.selected]="authMode==='register'" (click)="authMode='register';error=''">Create account</button></div>
+   <h2>{{authMode==='login'?'Welcome back':'A place for your collection'}}</h2>
+   <form #authForm="ngForm" (ngSubmit)="authenticate()">
+    <label *ngIf="authMode==='register'">Full name<input name="name" [(ngModel)]="auth.name" required maxlength="120" autocomplete="name"></label>
+    <label>Email<input name="email" type="email" [(ngModel)]="auth.email" required email autocomplete="username"></label>
+    <label>Password<input name="password" type="password" [(ngModel)]="auth.password" required [minlength]="authMode==='register'?12:1" [autocomplete]="authMode==='register'?'new-password':'current-password'"></label>
+    <ng-container *ngIf="authMode==='register'"><small>At least 12 characters, including a letter and a number.</small><label>Confirm password<input name="confirmation" type="password" [(ngModel)]="auth.password_confirmation" required autocomplete="new-password"></label></ng-container>
+    <button class="btn" [disabled]="busy || authForm.invalid">{{busy?'Please wait…':authMode==='register'?'Create account':'Sign in'}}</button>
+   </form>
+   <button class="text-button" type="button" (click)="forgot()" [disabled]="busy || !auth.email">Forgot password? Request a recovery link</button>
+   <p class="muted">Enter your email above to request recovery. Local mode: verification and recovery messages are written only to backend/storage/logs/laravel.log. No external emails are sent.</p>
+  </section>
+  <ng-container *ngIf="shop.user as user">
+   <section class="store-card" *ngIf="!user.email_verified_at"><h2>Verify your email</h2><p>A signed verification link is in the local mail log. Open it while signed in to this account. Registered test checkout requires verification.</p><button class="btn" (click)="resend()" [disabled]="busy">Write a new verification link</button><small>Local mode only: backend/storage/logs/laravel.log. Nothing is sent to your inbox.</small></section>
+   <section class="store-card profile"><div><p class="eyebrow">Collector profile</p><h2>{{user.name}}</h2><p>{{user.email}}</p></div><form (ngSubmit)="profile()"><label>Your name<input name="profileName" [(ngModel)]="user.name" required maxlength="120"></label><button class="btn" [disabled]="busy || !user.name.trim()">Save profile</button></form><button type="button" class="text-button" (click)="logout()" [disabled]="busy">Sign out</button></section>
+   <a *ngIf="user.is_admin" class="btn" routerLink="/admin">Open artist studio</a>
+   <section class="store-card" *ngIf="pendingItems.length"><h2>Unfinished test checkout</h2><p>A saved demo basket is waiting. No order, payment or stock reservation has been made. Continue to review the current prices and enter test delivery details.</p><button class="btn" (click)="resumePending()">Continue test checkout</button></section>
+   <h2 class="section-heading">Your order history</h2><p class="muted">Only orders placed while signed in to this account appear here.</p>
+   <p class="store-card" *ngIf="!orders.length">No orders yet. <a routerLink="/gallery" class="inline-link">Explore the gallery</a>.</p>
+   <article class="store-card order-card" *ngFor="let o of orders"><div class="order-heading"><h3>{{o.created_at | date:'mediumDate'}}</h3><span class="badge">TEST · {{shop.config.demo && o.status==='shipped'?'completed (simulated)':o.status}}</span></div><p class="reference">{{o.reference}}</p><p *ngFor="let l of o.items">{{l.quantity}} × {{l.title}} · {{l.variant}} <strong>{{shop.money(l.price_cents*l.quantity,o.currency)}}</strong></p><p>Total {{shop.money(o.total_cents,o.currency)}} · No payment collected</p><p class="muted">{{o.address.line1}} · {{o.address.city}} · {{o.address.postcode}} · {{o.address.country}}</p></article>
+  </ng-container>
+ </ng-container>
+ <ng-container *ngIf="mode==='admin'">
+  <section class="store-card" *ngIf="!shop.user?.is_admin"><h2>Artist access required</h2><p>This area is protected by the server. Sign in with an authorised artist account.</p><a class="btn" routerLink="/account">Go to account</a></section>
+  <ng-container *ngIf="shop.user?.is_admin">
+   <div class="studio-toolbar"><div class="store-tabs"><button [class.selected]="tab==='works'" (click)="tab='works'">Works · {{products.length}}</button><button [class.selected]="tab==='orders'" (click)="tab='orders'">Test orders · {{adminOrders.length}}</button></div><button class="text-button" (click)="loadAdmin()" [disabled]="busy">Refresh</button></div>
+   <section *ngIf="tab==='works'">
+    <div class="studio-toolbar"><p class="muted">{{shop.config.demo?'DEMO: fictional prices and stock, not artist terms.':'Prices and stock are intentionally unset in the imported catalogue.'}}</p><button class="btn" (click)="edit()">Add work</button></div>
+    <div class="admin-grid"><div class="work-list"><article class="admin-work" *ngFor="let p of products"><img [src]="p.photo" [alt]="p.title"><div><h3>{{p.title}}</h3><small>{{p.active?'Visible':'Hidden'}} · {{p.variants.length}} formats</small><div><button class="text-button" (click)="edit(p)">Edit</button><button class="text-button danger" (click)="remove(p)" [disabled]="busy">Delete</button></div></div></article></div>
+     <section class="store-card editor" *ngIf="editor as p; else selectWork">
+      <h2>{{p.id?'Edit work':'New work'}}</h2>
+      <form #editForm="ngForm" (ngSubmit)="save()">
+       <label>Title<input name="title" [(ngModel)]="p.title" required maxlength="180"></label>
+       <label>Size / technique / year<input name="size" [(ngModel)]="p.size" required maxlength="180"></label>
+       <label>Description / poem<textarea name="description" [(ngModel)]="p.description" maxlength="10000" rows="5"></textarea></label>
+       <label>Gallery introduction<textarea name="intro" [(ngModel)]="p.introduction" maxlength="2000" rows="2"></textarea></label>
+       <div class="field-row"><div><label>Main image path<input name="photo" [(ngModel)]="p.photo" required></label><label>Upload main image<input type="file" accept="image/png,image/jpeg,image/webp" (change)="upload($event,'photo')" [disabled]="busy"></label></div><img class="edit-preview" *ngIf="p.photo" [src]="p.photo" alt="Main image preview"></div>
+       <label>Detail image path<input name="photo2" [(ngModel)]="p.photo2"></label><label>Upload detail (optional)<input type="file" accept="image/png,image/jpeg,image/webp" (change)="upload($event,'photo2')" [disabled]="busy"></label><small>JPEG, PNG or WebP, up to 5 MB and 16 million pixels. The original stays private; only a web copy up to 960 px is shown. Uploading does not replace the image until you save the work.</small>
+       <label class="checkbox"><input type="checkbox" name="active" [(ngModel)]="p.active"> Visible in gallery</label>
+       <h3>Formats, prices & stock</h3><p class="muted">{{shop.config.currency ? 'Currency: '+shop.config.currency : 'Currency not configured. Set SHOP_CURRENCY on the server before checkout.'}}. Blank price = on request. Stock starts at 0.</p>
+       <fieldset *ngFor="let v of p.variants; let i=index"><legend>Format {{i+1}}</legend>
+        <label>Format name<input [name]="'vname'+i" [(ngModel)]="v.name" required maxlength="180"></label>
+        <div class="field-row"><label>Unit price (decimal)<input type="number" [name]="'price'+i" min="0" max="1000000" step="0.01" [ngModel]="v.price_cents===null?null:v.price_cents/100" (ngModelChange)="price(v,$event===null?'':$event.toString())"></label><label>Stock<input type="number" [name]="'stock'+i" min="0" max="10000" step="1" [(ngModel)]="v.stock" required></label></div>
+        <label class="checkbox"><input type="checkbox" [name]="'vactive'+i" [(ngModel)]="v.active"> Format visible</label>
+       </fieldset>
+       <div class="studio-toolbar"><button class="text-button" type="button" (click)="addVariant()">+ Add format</button><button class="btn" [disabled]="busy || editForm.invalid">{{busy?'Saving…':'Save work'}}</button></div>
+      </form>
+     </section><ng-template #selectWork><div class="store-card"><h2>Your catalogue, in one place</h2><p>Select a work to change its images, text, formats, prices and stock, or add a new one.</p></div></ng-template>
+    </div>
+   </section>
+   <section *ngIf="tab==='orders'"><p class="store-warning">All orders in this build are TEST orders. Do not dispatch goods. Payments are not connected. Latest 500 orders shown.</p><p class="store-card" *ngIf="!adminOrders.length">No test orders yet.</p>
+    <article class="store-card order-card" *ngFor="let o of adminOrders"><div class="order-heading"><h2>{{o.name}}</h2><span class="badge">TEST · {{shop.config.demo && o.status==='shipped'?'completed (simulated)':o.status}}</span></div><p class="reference">{{o.reference}} · {{o.created_at | date:'medium'}}</p><p>{{o.email}}</p><p>{{o.address.line1}} {{o.address.line2}} · {{o.address.city}} · {{o.address.postcode}} · {{o.address.country}}</p><p *ngFor="let l of o.items">{{l.quantity}} × {{l.title}} · {{l.variant}} <strong>{{shop.money(l.price_cents*l.quantity,o.currency)}}</strong></p><p>Works {{shop.money(o.subtotal_cents,o.currency)}} · Test shipping {{shop.money(o.shipping_cents,o.currency)}} · Test tax {{shop.money(o.tax_cents,o.currency)}}</p><p class="grand-total">Total {{shop.money(o.total_cents,o.currency)}} · Payment: {{o.payment_status}}</p><label>Test fulfilment status<select [ngModel]="o.status" (ngModelChange)="status(o,$event)" [disabled]="busy || nextStatuses(o).length<2"><option *ngFor="let s of nextStatuses(o)" [value]="s">{{s}}</option></select></label><small>Cancellation returns reserved stock once. Shipped/cancelled orders cannot be reopened.</small></article>
+   </section>
+  </ng-container>
+ </ng-container>
+</main><app-footer></app-footer>

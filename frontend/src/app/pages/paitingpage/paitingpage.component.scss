@@ -1,0 +1,109 @@
+.container-detail {
+  background: var(--navy-900);
+  min-height: 100vh;
+  padding: 3rem var(--page-pad) 5rem;
+}
+
+.back-link {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2.6rem;
+  transition: color 0.3s;
+  .arrow { margin-right: 0.5rem; }
+  &:hover { color: var(--text); }
+}
+
+.content-layout {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: start;
+}
+
+.images-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  img {
+    width: 100%;
+    height: auto;
+    box-shadow: 0 22px 54px rgba(5, 12, 30, 0.55);
+  }
+}
+
+.info-column {
+  position: sticky;
+  top: 6rem;
+
+  .eyebrow { margin: 0 0 0.9rem; }
+  .title { font-size: clamp(2.2rem, 4.4vw, 3.4rem); margin-bottom: 0.6rem; }
+  .size { color: var(--text-muted); font-size: 0.85rem; letter-spacing: 0.06em; margin: 0; }
+
+  .divider { height: 1px; background: var(--line); margin: 2rem 0; }
+
+  .description {
+    white-space: pre-line;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.35rem;
+    line-height: 1.55;
+    color: var(--text);
+    margin: 0 0 2.4rem;
+  }
+
+  .section-title {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+  }
+
+  .formats {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.2rem;
+
+    li {
+      padding: 1rem 0;
+      border-top: 1px solid var(--line);
+      &:last-child { border-bottom: 1px solid var(--line); }
+      strong { display: block; font-weight: 500; color: var(--text); font-size: 0.95rem; margin-bottom: 0.2rem; }
+      span { color: var(--text-muted); font-size: 0.85rem; }
+    }
+  }
+
+  .note { font-size: 0.82rem; color: var(--text-muted); margin: 0 0 2.2rem; }
+}
+
+.pager {
+  max-width: 1240px;
+  margin: 5rem auto 0;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+
+  a {
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    color: var(--text-muted);
+    transition: color 0.3s;
+    &:hover { color: var(--accent); }
+  }
+}
+
+@media (max-width: 900px) {
+  .content-layout { grid-template-columns: 1fr; }
+  .info-column { position: static; }
+}
