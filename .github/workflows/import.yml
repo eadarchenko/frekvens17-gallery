@@ -1,4 +1,4 @@
-name: Import reviewed source
+name: Publish reviewed hosted demo
 on:
   workflow_dispatch:
 permissions:
@@ -8,26 +8,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - name: Verify and expand source archive
+      - name: Verify and expand reviewed update
         run: |
-          cat source-parts/source-parts/part-0.txt gallery-part-{1..5}.txt | base64 -d > frekvens17-public-source.zip
-          echo '427562875a7e79cabd2e155fb7ccd45529703f0aa3b95da7682f823cdfdbedf5  frekvens17-public-source.zip' | sha256sum -c -
-          python3 - <<'PY'
+          base64 -d hosted-update.txt > hosted-update.zip
+          echo '8f43dd9aac04169422ae398eb426daf4be3b9d5d89cddd74af1f70e0515e8c2e  hosted-update.zip' | sha256sum -c -
+          python3 - <<'PYCODE'
           from pathlib import Path
           from zipfile import ZipFile
-          with ZipFile('frekvens17-public-source.zip') as z:
+          with ZipFile('hosted-update.zip') as z:
               for n in z.namelist():
                   p = Path(n)
                   if p.is_absolute() or '..' in p.parts or '.git' in p.parts:
-                      raise SystemExit('Unsafe archive path')
+                      raise SystemExit('Unsafe path')
                   if p.name in {'.env', 'AGENTS.md', 'CLAUDE.md'} or 'private-originals' in p.parts:
-                      raise SystemExit('Excluded private content')
+                      raise SystemExit('Excluded content')
               z.extractall('.')
-          PY
-          rm frekvens17-public-source.zip
-          rm -r source-parts gallery-part-{1..5}.txt
+          PYCODE
+          rm hosted-update.zip hosted-update.txt
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .
-          git commit -m 'Import gallery source with responsive shop and local test backend'
+          git commit -m 'Add isolated temporary Render demo without real payments or personal accounts'
           git push
