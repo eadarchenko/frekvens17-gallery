@@ -8,6 +8,17 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/verify-email/{id}/{hash}', [Account::class, 'verify'])->middleware(['auth', 'signed', 'throttle:6,1'])->name('verification.verify');
 Route::prefix('api')->group(function () {
+    Route::post('/demo/role', function (Request $r) {
+        abort_unless(config('shop.hosted_demo'), 404);
+        $role = $r->validate(['role' => 'required|in:artist,collector,guest'])['role'];
+        \Illuminate\Support\Facades\Auth::logout();
+        if ($role !== 'guest') {
+            $user = \App\Models\User::where('email', $role === 'artist' ? 'artist@demo.test' : 'collector@demo.test')->firstOrFail();
+            \Illuminate\Support\Facades\Auth::login($user);
+        }
+        $r->session()->regenerate();
+        return ['ok' => true];
+    })->middleware('throttle:30,1');
     Route::get('/session', [Shop::class, 'session']);
     Route::get('/config', [Shop::class, 'config']);
     Route::get('/products', [Shop::class, 'products']);

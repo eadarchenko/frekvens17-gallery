@@ -23,7 +23,7 @@ class ShopController extends Controller
     {
         return response()->json(['mode' => config('shop.mode') === 'test' ? 'test' : 'disabled', 'currency' => config('shop.currency'),
             'shipping_cents' => (int) config('shop.shipping_cents'), 'tax_basis_points' => (int) config('shop.tax_basis_points'),
-            'payments_connected' => false, 'demo' => config('shop.demo')]);
+            'payments_connected' => false, 'demo' => config('shop.demo'), 'hosted_demo' => config('shop.hosted_demo')]);
     }
 
     public function products()

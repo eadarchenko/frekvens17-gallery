@@ -46,3 +46,9 @@ Las pruebas de navegador usan Chrome/Chromium instalado mediante Playwright o `C
 Revisión móvil en Chrome con tacto emulado: 27 estados, de 320 a 1280 px, menú y acciones móviles con zonas de al menos 44 px. Sigue pendiente probar Safari/iOS y Android en dispositivos físicos y hacer una auditoría completa de accesibilidad.
 
 Consulta [INICIO.md](INICIO.md) para crear el primer acceso de artista y [ESTADO.md](ESTADO.md) para los límites técnicos y de despliegue.
+
+## Public hosted demo
+
+The Dockerfile starts an isolated, temporary test store. Each browser gets a separate SQLite copy with fictional sample roles. Use the banner buttons to try collector and artist. Checkout never charges anything. Personal account registration, email, profile editing and image uploads are disabled in this mode. Never enter personal information. Changes reset when the free service restarts or after the temporary database expires. This is not a persistent store for real sales.
+
+Render: create a Web Service from this public repository, choose Docker, the Free ($0) instance, and port 80. No environment secrets or payment card are needed. APP_KEY is generated on startup. Set health check path to `/up`. Do not attach a paid disk or database.

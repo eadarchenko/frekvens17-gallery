@@ -2,7 +2,7 @@
 <main class="store-shell">
  <p class="eyebrow">Frekvens 17 · {{mode==='admin'?'Artist studio':'Collector services'}}</p>
  <h1>{{mode==='basket'?'Your basket':mode==='account'?'Your account':mode==='reset'?'Reset your password':'Artist studio'}}</h1>
- <p class="store-warning" role="note">Local development version. Online payments are not connected. No real purchases can be made.</p>
+ <p class="store-warning" role="note">{{shop.config.hosted_demo?'Public demonstration.':'Local development version.'}} Online payments are not connected. No real purchases can be made.</p>
  <p class="store-warning" *ngIf="shop.config.demo">DEMO: fictional prices from EUR 300 and fictional stock. Completed fulfilment is simulated. No payment or delivery occurred.</p>
  <p class="error" role="alert" *ngIf="error">{{error}}</p><p class="success" role="status" *ngIf="notice">{{notice}}</p>
  <p class="error" *ngIf="shop.unavailable">{{shop.unavailable}}</p>
@@ -11,7 +11,7 @@
    <h2>Test order recorded</h2><p>No payment was collected. This is not a purchase confirmation.</p>
    <p class="reference">Reference: {{submitted.reference}}</p>
    <p>{{shop.money(submitted.total_cents,submitted.currency)}} · {{submitted.status}} · Payment: {{submitted.payment_status}}</p>
-   <p *ngIf="!shop.user">Guest details are stored with this test order. Guest orders do not appear in a later account automatically.</p>
+   <p *ngIf="!shop.user && !shop.config.hosted_demo">Guest details are stored with this test order. Guest orders do not appear in a later account automatically.</p>
    <a class="btn" routerLink="/gallery">Return to gallery</a>
   </section>
   <ng-container *ngIf="!submitted">
@@ -31,16 +31,16 @@
      <div class="store-card totals"><p><span>Works</span><strong>{{shop.money(shop.subtotal)}}</strong></p><p><span>Test shipping</span>{{shop.money(shop.config.shipping_cents)}}</p><p><span>Test tax</span>{{shop.money(shop.tax)}}</p><p class="grand-total"><span>Test total</span><strong>{{shop.money(shop.total)}}</strong></p><small>These are test calculations, not commercial shipping or tax terms.</small></div>
     </section>
     <section class="store-card">
-     <h2>{{shop.user?'Checkout':'Guest checkout'}}</h2><p *ngIf="!shop.user">No account needed. Or <a class="inline-link" routerLink="/account">sign in / create an account</a> for your order history.</p>
+     <h2>{{shop.user?'Checkout':'Guest checkout'}}</h2><p *ngIf="!shop.user && !shop.config.hosted_demo">No account needed. Or <a class="inline-link" routerLink="/account">sign in / create an account</a> for your order history.</p>
      <p class="store-warning" *ngIf="shop.config.mode!=='test'">Checkout is disabled until the artist confirms prices, currency, shipping, taxes and a payment provider.</p>
      <p class="store-warning" *ngIf="shop.user && !shop.user.email_verified_at">Verify your email in <a routerLink="/account" class="inline-link">your account</a> before recording a signed-in test order.</p>
-     <form #checkoutForm="ngForm" (ngSubmit)="checkout()">
-      <label>Full name<input name="name" [(ngModel)]="customer.name" required maxlength="120" autocomplete="name"></label>
-      <label>Email<input [readonly]="!!shop.user" type="email" name="email" [(ngModel)]="customer.email" required email maxlength="254" autocomplete="email"></label>
-      <label>Address<input name="line1" [(ngModel)]="customer.address.line1" required maxlength="180" autocomplete="address-line1"></label>
-      <label>Apartment / address line 2 (optional)<input name="line2" [(ngModel)]="customer.address.line2" maxlength="180" autocomplete="address-line2"></label>
-      <div class="field-row"><label>City<input name="city" [(ngModel)]="customer.address.city" required maxlength="120" autocomplete="address-level2"></label><label>Postal code<input name="postcode" [(ngModel)]="customer.address.postcode" required maxlength="30" autocomplete="postal-code"></label></div>
-      <label>Country code (2 letters, e.g. ES)<input name="country" [(ngModel)]="customer.address.country" required pattern="[A-Za-z]{2}" maxlength="2" autocomplete="country"></label>
+     <p class="muted" *ngIf="shop.config.hosted_demo">Sample delivery details are fixed. No real personal information is needed or saved.</p><form #checkoutForm="ngForm" (ngSubmit)="checkout()">
+      <label>Full name<input [readonly]="shop.config.hosted_demo" name="name" [(ngModel)]="customer.name" required maxlength="120" autocomplete="name"></label>
+      <label>Email<input [readonly]="!!shop.user || shop.config.hosted_demo" type="email" name="email" [(ngModel)]="customer.email" required email maxlength="254" autocomplete="email"></label>
+      <label>Address<input [readonly]="shop.config.hosted_demo" name="line1" [(ngModel)]="customer.address.line1" required maxlength="180" autocomplete="address-line1"></label>
+      <label>Apartment / address line 2 (optional)<input [readonly]="shop.config.hosted_demo" name="line2" [(ngModel)]="customer.address.line2" maxlength="180" autocomplete="address-line2"></label>
+      <div class="field-row"><label>City<input [readonly]="shop.config.hosted_demo" name="city" [(ngModel)]="customer.address.city" required maxlength="120" autocomplete="address-level2"></label><label>Postal code<input [readonly]="shop.config.hosted_demo" name="postcode" [(ngModel)]="customer.address.postcode" required maxlength="30" autocomplete="postal-code"></label></div>
+      <label>Country code (2 letters, e.g. ES)<input [readonly]="shop.config.hosted_demo" name="country" [(ngModel)]="customer.address.country" required pattern="[A-Za-z]{2}" maxlength="2" autocomplete="country"></label>
       <label class="checkbox"><input type="checkbox" name="test" [(ngModel)]="customer.test_acknowledged" required> I understand this records a test order only. No payment or real fulfilment.</label>
       <button class="btn" [disabled]="busy || checkoutForm.invalid || !shop.valid || shop.config.mode!=='test' || !shop.config.currency || (shop.user && !shop.user.email_verified_at)">{{busy?'Recording…':'Record test order'}}</button>
      </form>
@@ -48,12 +48,12 @@
    </div>
   </ng-container>
  </ng-container>
- <section class="store-card auth-card" *ngIf="mode==='reset'">
+ <section class="store-card auth-card" *ngIf="mode==='reset' && !shop.config.hosted_demo">
   <h2>Choose a new password</h2><p class="muted">Recovery links expire after 60 minutes and work once.</p>
   <form #resetForm="ngForm" (ngSubmit)="reset()"><label>Email<input name="resetEmail" type="email" [(ngModel)]="recovery.email" required email></label><label>New password<input name="resetPassword" type="password" [(ngModel)]="recovery.password" required minlength="12" autocomplete="new-password"></label><label>Confirm new password<input name="resetConfirm" type="password" [(ngModel)]="recovery.password_confirmation" required autocomplete="new-password"></label><small>At least 12 characters, including a letter and a number.</small><button class="btn" [disabled]="busy || resetForm.invalid || !recovery.token">Reset password</button></form><a class="inline-link" routerLink="/account">Back to sign in</a>
  </section>
  <ng-container *ngIf="mode==='account'">
-  <section class="store-card auth-card" *ngIf="!shop.user">
+  <section class="store-card auth-card" *ngIf="!shop.user && !shop.config.hosted_demo">
    <div class="store-tabs"><button [class.selected]="authMode==='login'" (click)="authMode='login';error=''">Sign in</button><button [class.selected]="authMode==='register'" (click)="authMode='register';error=''">Create account</button></div>
    <h2>{{authMode==='login'?'Welcome back':'A place for your collection'}}</h2>
    <form #authForm="ngForm" (ngSubmit)="authenticate()">
@@ -68,7 +68,7 @@
   </section>
   <ng-container *ngIf="shop.user as user">
    <section class="store-card" *ngIf="!user.email_verified_at"><h2>Verify your email</h2><p>A signed verification link is in the local mail log. Open it while signed in to this account. Registered test checkout requires verification.</p><button class="btn" (click)="resend()" [disabled]="busy">Write a new verification link</button><small>Local mode only: backend/storage/logs/laravel.log. Nothing is sent to your inbox.</small></section>
-   <section class="store-card profile"><div><p class="eyebrow">Collector profile</p><h2>{{user.name}}</h2><p>{{user.email}}</p></div><form (ngSubmit)="profile()"><label>Your name<input name="profileName" [(ngModel)]="user.name" required maxlength="120"></label><button class="btn" [disabled]="busy || !user.name.trim()">Save profile</button></form><button type="button" class="text-button" (click)="logout()" [disabled]="busy">Sign out</button></section>
+   <section class="store-card profile"><div><p class="eyebrow">Collector profile</p><h2>{{user.name}}</h2><p>{{user.email}}</p></div><form *ngIf="!shop.config.hosted_demo" (ngSubmit)="profile()"><label>Your name<input name="profileName" [(ngModel)]="user.name" required maxlength="120"></label><button class="btn" [disabled]="busy || !user.name.trim()">Save profile</button></form><button type="button" class="text-button" (click)="logout()" [disabled]="busy">Sign out</button></section>
    <a *ngIf="user.is_admin" class="btn" routerLink="/admin">Open artist studio</a>
    <section class="store-card" *ngIf="pendingItems.length"><h2>Unfinished test checkout</h2><p>A saved demo basket is waiting. No order, payment or stock reservation has been made. Continue to review the current prices and enter test delivery details.</p><button class="btn" (click)="resumePending()">Continue test checkout</button></section>
    <h2 class="section-heading">Your order history</h2><p class="muted">Only orders placed while signed in to this account appear here.</p>
@@ -90,8 +90,8 @@
        <label>Size / technique / year<input name="size" [(ngModel)]="p.size" required maxlength="180"></label>
        <label>Description / poem<textarea name="description" [(ngModel)]="p.description" maxlength="10000" rows="5"></textarea></label>
        <label>Gallery introduction<textarea name="intro" [(ngModel)]="p.introduction" maxlength="2000" rows="2"></textarea></label>
-       <div class="field-row"><div><label>Main image path<input name="photo" [(ngModel)]="p.photo" required></label><label>Upload main image<input type="file" accept="image/png,image/jpeg,image/webp" (change)="upload($event,'photo')" [disabled]="busy"></label></div><img class="edit-preview" *ngIf="p.photo" [src]="p.photo" alt="Main image preview"></div>
-       <label>Detail image path<input name="photo2" [(ngModel)]="p.photo2"></label><label>Upload detail (optional)<input type="file" accept="image/png,image/jpeg,image/webp" (change)="upload($event,'photo2')" [disabled]="busy"></label><small>JPEG, PNG or WebP, up to 5 MB and 16 million pixels. The original stays private; only a web copy up to 960 px is shown. Uploading does not replace the image until you save the work.</small>
+       <div class="field-row"><div><label>Main image path<input name="photo" [(ngModel)]="p.photo" required></label><label>Upload main image<input type="file" accept="image/png,image/jpeg,image/webp" (change)="upload($event,'photo')" [disabled]="busy || shop.config.hosted_demo"></label></div><img class="edit-preview" *ngIf="p.photo" [src]="p.photo" alt="Main image preview"></div>
+       <label>Detail image path<input name="photo2" [(ngModel)]="p.photo2"></label><label>Upload detail (optional)<input type="file" accept="image/png,image/jpeg,image/webp" (change)="upload($event,'photo2')" [disabled]="busy || shop.config.hosted_demo"></label><small>JPEG, PNG or WebP, up to 5 MB and 16 million pixels. The original stays private; only a web copy up to 960 px is shown. Uploading does not replace the image until you save the work.</small>
        <label class="checkbox"><input type="checkbox" name="active" [(ngModel)]="p.active"> Visible in gallery</label>
        <h3>Formats, prices & stock</h3><p class="muted">{{shop.config.currency ? 'Currency: '+shop.config.currency : 'Currency not configured. Set SHOP_CURRENCY on the server before checkout.'}}. Blank price = on request. Stock starts at 0.</p>
        <fieldset *ngFor="let v of p.variants; let i=index"><legend>Format {{i+1}}</legend>

@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo('/account');
+        $middleware->trustProxies(at: '*');
+        $middleware->web(append: [\App\Http\Middleware\HostedDemo::class]);
+        $middleware->prependToPriorityList(\Illuminate\Auth\Middleware\Authenticate::class, \App\Http\Middleware\HostedDemo::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

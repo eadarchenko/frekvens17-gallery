@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'hosted_demo' => env('SHOP_HOSTED_DEMO', false),
     // Deliberately disabled until the artist confirms commercial terms.
     'demo' => (bool) env('SHOP_DEMO', false),
     'mode' => env('SHOP_CHECKOUT_MODE', 'disabled'),

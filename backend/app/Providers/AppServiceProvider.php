@@ -24,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Local-only transport: even a mistakenly configured SMTP default cannot send externally.
         config(['mail.default' => 'log', 'mail.from.address' => 'local@example.test', 'mail.from.name' => 'Frekvens 17 - LOCAL TEST']);
+        if (config('shop.hosted_demo')) { config(['mail.default' => 'array']); }
         ResetPassword::createUrlUsing(fn ($user, $token) => url('/reset-password').'?'.http_build_query(['token' => $token, 'email' => $user->email]));
     }
 }

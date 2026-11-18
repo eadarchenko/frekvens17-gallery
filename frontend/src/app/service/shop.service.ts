@@ -5,7 +5,7 @@ import { Painting } from '../interface/painting';
 export interface Variant { id?:number; product_id?:number; name:string; price_cents:number|null; stock:number; active:boolean; }
 export interface Product extends Painting { active:boolean; variants:Variant[]; }
 export interface ShopUser { id:number;name:string;email:string;is_admin:boolean;email_verified_at:string|null; }
-export interface ShopConfig { mode:string;currency:string|null;shipping_cents:number;tax_basis_points:number;payments_connected:boolean;demo?:boolean; }
+export interface ShopConfig { mode:string;currency:string|null;shipping_cents:number;tax_basis_points:number;payments_connected:boolean;demo?:boolean;hosted_demo?:boolean; }
 export interface OrderLine { title:string;variant:string;price_cents:number;quantity:number; }
 export interface ShopOrder { id:number;reference:string;name:string;email:string;address:{line1:string;line2?:string;city:string;postcode:string;country:string};currency:string;subtotal_cents:number;shipping_cents:number;tax_cents:number;total_cents:number;status:string;payment_status:string;is_test:boolean;created_at:string;items:OrderLine[]; }
 export interface BasketLine { variant_id:number; quantity:number; }
@@ -39,5 +39,6 @@ export class ShopService {
  clear(){this.basket=[];this.saveBasket();}
  error(e:any){const errors=e?.error?.errors;if(errors)return Object.values(errors).flat().join(' ');if(e?.status===419)return 'Session expired. Reload this page and try again.';return e?.error?.message||'Unable to reach the server. Please try again.';}
  async auth(kind:string,body:unknown){const r=await this.post<{user:ShopUser}>('/'+kind,body);this.user=r.user;}
+ async demoRole(role:string){await this.post('/demo/role',{role});this.clear();sessionStorage.removeItem('f17-checkout-key');location.href=role==='artist'?'/admin':role==='collector'?'/account':'/gallery';}
  async logout(){await this.post('/logout',{});this.user=null;await this.get('/session');}
 }

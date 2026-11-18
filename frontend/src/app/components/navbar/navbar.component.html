@@ -10,3 +10,9 @@
 </nav>
 
 <p class="server-error" role="alert" *ngIf="shop.unavailable">{{shop.unavailable}}</p>
+
+<aside class="hosted-demo-bar" *ngIf="shop.config.hosted_demo" aria-label="Public demo controls">
+  <strong>PUBLIC DEMO · no payments</strong>
+  <p>Fictional data only. Changes stay in this browser's temporary demo and may reset on restart or after 24 hours. Do not enter personal data. Email and uploads are disabled.</p>
+  <div><button type="button" (click)="shop.demoRole('guest')">Browse as guest</button><button type="button" (click)="shop.demoRole('collector')">Try collector account</button><button type="button" (click)="shop.demoRole('artist')">Try artist studio</button></div>
+</aside>

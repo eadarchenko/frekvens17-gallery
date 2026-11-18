@@ -114,3 +114,5 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outline-
 @media (max-width: 850px) {
   .back-link, .pager a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
 }
+
+.hosted-demo-bar{padding:1rem var(--page-pad);border-bottom:1px solid var(--gold);background:var(--navy-800);font-size:.8rem;strong{color:var(--gold)}p{max-width:900px;margin:.5rem 0}div{display:flex;gap:.5rem;flex-wrap:wrap}button{min-height:44px;padding:.5rem .8rem;background:var(--navy-950);border:1px solid var(--gold);color:var(--gold);font:inherit;cursor:pointer}}
