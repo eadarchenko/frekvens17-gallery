@@ -41,7 +41,24 @@
       <label>Apartment / address line 2 (optional)<input [readonly]="shop.config.hosted_demo" name="line2" [(ngModel)]="customer.address.line2" maxlength="180" autocomplete="address-line2"></label>
       <div class="field-row"><label>City<input [readonly]="shop.config.hosted_demo" name="city" [(ngModel)]="customer.address.city" required maxlength="120" autocomplete="address-level2"></label><label>Postal code<input [readonly]="shop.config.hosted_demo" name="postcode" [(ngModel)]="customer.address.postcode" required maxlength="30" autocomplete="postal-code"></label></div>
       <label>Country code (2 letters, e.g. ES)<input [readonly]="shop.config.hosted_demo" name="country" [(ngModel)]="customer.address.country" required pattern="[A-Za-z]{2}" maxlength="2" autocomplete="country"></label>
-      <label class="checkbox"><input type="checkbox" name="test" [(ngModel)]="customer.test_acknowledged" required> I understand this records a test order only. No payment or real fulfilment.</label>
+      <label class="checkbox"><input type="checkbox" name="test" [(ngModel)]="customer.test_acknowledged" required> I understand this is a test only. No real payment or fulfilment.</label>
+      <section class="paypal-panel" *ngIf="shop.config.paypal_mode==='preview' || shop.config.paypal_mode==='sandbox'" aria-labelledby="paypal-title">
+       <p class="eyebrow">{{shop.config.paypal_mode==='preview'?'Payment preview':'Sandbox · test accounts only'}}</p>
+       <h3 id="paypal-title">PayPal</h3>
+       <p>{{shop.config.paypal_mode==='preview'?'See how PayPal will fit into checkout. This preview does not connect to PayPal.':'Continue to PayPal Sandbox using fictitious test accounts only. This cannot charge real money.'}}</p>
+       <button type="button" class="paypal-button" (click)="paypalStart()" [attr.aria-expanded]="shop.config.paypal_mode==='preview'?paypalPreview:null" [disabled]="busy || !shop.valid || !customer.test_acknowledged || shop.config.mode!=='test'">{{busy?'Please wait…':shop.config.paypal_mode==='preview'?'Preview PayPal checkout':'Continue to PayPal Sandbox'}}</button>
+       <small>Test total: {{shop.money(shop.total)}}. No real purchase or delivery.</small>
+       <section class="paypal-review" *ngIf="paypalPreview" aria-labelledby="paypal-preview-title">
+        <h3 id="paypal-preview-title">Review your test payment</h3><p class="paypal-amount">{{shop.money(shop.total)}}</p>
+        <p>Frekvens 17 · fictional prices</p><p>This is a gallery preview, not a PayPal login or payment window. Do not enter any PayPal details.</p>
+        <button type="button" class="paypal-button" (click)="paypalSimulate('success')">Simulate successful payment</button>
+        <div class="paypal-options"><button type="button" class="text-button" (click)="paypalSimulate('cancel')">Simulate cancellation</button><button type="button" class="text-button" (click)="paypalSimulate('error')">Simulate error</button></div>
+       </section>
+       <p class="paypal-feedback" role="status" *ngIf="paypalResult">{{paypalResult}}</p>
+       <p class="reference" *ngIf="paypalReceipt">Sandbox reference: {{paypalReceipt.reference}} · {{shop.money(paypalReceipt.total_cents,paypalReceipt.currency)}}</p>
+       <button type="button" class="text-button" *ngIf="shop.config.paypal_mode==='sandbox' && paypalPending" (click)="paypalConfirm()" [disabled]="busy">Retry sandbox confirmation</button>
+      </section>
+      <p class="muted">Or use the existing local test order:</p>
       <button class="btn" [disabled]="busy || checkoutForm.invalid || !shop.valid || shop.config.mode!=='test' || !shop.config.currency || (shop.user && !shop.user.email_verified_at)">{{busy?'Recording…':'Record test order'}}</button>
      </form>
     </section>

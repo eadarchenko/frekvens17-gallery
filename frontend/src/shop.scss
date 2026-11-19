@@ -3,3 +3,14 @@
 @media(max-width:850px){.checkout-grid,.admin-grid{grid-template-columns:1fr}.store-shell{padding-top:2rem}.basket-line{grid-template-columns:85px 1fr;gap:1rem;img{width:85px;height:125px}}.field-row{grid-template-columns:1fr}.admin-grid{gap:1rem}}
 
 @media(max-width:850px){.work-list{order:2}.admin-grid>.store-card{order:1}}
+
+/* PayPal is clearly separated from the local, non-payment test order. */
+.paypal-panel{margin:1.5rem 0;padding:1.25rem;border:1px solid #b9a06a;border-radius:12px;background:#101e35;min-width:0}
+.paypal-panel h3{margin:.4rem 0 .8rem;color:#f1dfb6;font-size:1.5rem}
+.paypal-panel p{line-height:1.6}.paypal-panel small{display:block;margin-top:.75rem;line-height:1.5}
+.paypal-button{display:block;width:100%;min-height:48px;border:0;border-radius:7px;background:#ffc439;color:#172c50;font:700 1rem/1.4 Arial,sans-serif;padding:.85rem 1rem;white-space:normal;cursor:pointer}
+.paypal-button:disabled{opacity:.5;cursor:not-allowed}.paypal-button:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.paypal-review{border-top:1px solid #647086;margin-top:1.25rem;padding-top:1rem}.paypal-amount{font-size:2rem;color:#fff;margin:.5rem 0}
+.paypal-options{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}.paypal-options button{min-height:44px;text-align:left}
+.paypal-feedback{padding:1rem;background:#193a42;border-radius:7px;color:#e7f7ef;overflow-wrap:anywhere}
+@media(max-width:400px){.paypal-panel{padding:1rem}.paypal-options{display:block}}
